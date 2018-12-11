@@ -191,6 +191,10 @@ MUST_OVERWRITEN = _MustOverwrite()
 
 
 def topologic_order_graph(ugraph):
+  if ugraph.backend != "tensorflow":
+    raise ValueError(
+      "topologic_order_graph works only on tensorflow graph"
+    )
   # https://en.wikipedia.org/wiki/Topological_sorting
   queue = deepcopy(ugraph.output_nodes)
   visited = set()    # temporary mark

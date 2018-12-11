@@ -54,15 +54,19 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
       for v in shape_values:
         assert isinstance(v, (int, type(None))), \
           "shape should be a list of integers"
-  ugraph = attr.ib()
+  ugraph = attr.ib(repr=False)
   @ugraph.validator
   def check(self, attrib, value):
     if not isinstance(value, uTensorGraph):
       raise ValueError('Expecting a uTensorGraph, get {}'.format(type(value)))
-  
+
   @property
   def op(self):
     return self.ugraph.ops_info.get(self.op_name, None)
+
+  @property
+  def backend(self):
+    return self.ugraph.backend
 
   @property
   def is_dangling(self):
@@ -70,6 +74,22 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
     if not op:
       return True
     return op.is_dangling
+  
+  @property
+  def n_th_output(self):
+    if self.is_dangling:
+      raise ValueError(
+        "dangling tensor: {}".format(self.name)
+      )
+    op = self.op
+    out_tnames = [t_info.name for t_info in op.output_tensors]
+    return out_tnames.index(self.name)
+
+  def semantic_signature(self):
+    return "<{n_th}>{op_sig}".format(
+      n_th=self.n_th_output,
+      op_sig=self.op.semantic_signature
+    )
 
   def __deepcopy__(self, memo):
     new_tensor = TensorInfo(name=self.name,
@@ -100,6 +120,7 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
     values of such keys will be saved as-is without any type conversion.
   """
   name = attr.ib(type=str)
+  _backend = attr.ib(type=str)
   ugraph = attr.ib(repr=False)
   @ugraph.validator
   def check(self, attrib, value):
@@ -120,14 +141,11 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
       raise ValueError('Expecting a list of TensorInfo for output_tensors')
 
   op_type = attr.ib(type=str)
-
-  backend = attr.ib(type=str)
-  @backend.validator
-  def check(self, attribute, value):
-    if value not in ['tensorflow']:
-      raise ValueError('Unsupported backend: {}'.format(value))
-
   op_attr = attr.ib(factory=dict, converter=dict)
+
+  @property
+  def backend(self):
+    return self._backend
 
   @property
   def input_nodes(self):
@@ -158,10 +176,25 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
   @property
   def n_inputs(self):
     return len(self.input_tensors)
-  
+
   @property
   def n_outputs(self):
     return len(self.output_tensors)
+
+  def semantic_signature(self):
+    queue = [(self, self.input_nodes)]
+    sig = "{}<:".format(self.op_type)
+    while queue:
+      current_node, input_nodes = queue.pop(0)
+      if any([node.is_dangling for node in input_nodes]):
+        raise ValueError(
+          "Dangling node detected: {}".format(current_node.name)
+        )
+      queue.extend([
+        (node, node.input_nodes) for node in input_nodes
+      ])
+      sig += "{}<:".format(tuple(node.op_type for node in input_nodes))
+    return sig
 
   def __attrs_post_init__(self):
     skip_pattern = re.compile(r'_utensor_[^_]*')
@@ -205,24 +238,30 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
   output_nodes = attr.ib(type=list)
   _backend = attr.ib(default='', type=str)
   ops_info = attr.ib(factory=dict)
+  # non-init
   topo_order = attr.ib(factory=list, init=False)
   _type_to_op_map = attr.ib(factory=dict, init=False, repr=False)
 
   def __attrs_post_init__(self):
     if not self.output_nodes:
       raise ValueError('No output_nodes given')
-    for op_info in self.ops_info.values():
-      op_type = op_info.op_type
-      ops = self._type_to_op_map.get(
-        op_type,
-        []
-      ).append(op_info)
-      self._type_to_op_map.update(
-        [(op_type, ops),]
-      )
   
   def get_ops_by_type(self, op_type):
+    if not self._type_to_op_map:
+      for op_info in self.ops_info.values():
+        op_type = op_info.op_type
+        ops = self._type_to_op_map.get(
+          op_type,
+          []
+        ) + [op_info]
+        self._type_to_op_map.update(
+          [(op_type, ops),]
+        )
     return self._type_to_op_map.get(op_type, [])
+  
+  @property
+  def output_ops(self):
+    return [self.ops_info[name] for name in self.output_nodes]
   
   @property
   def backend(self):
