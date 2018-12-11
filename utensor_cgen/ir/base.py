@@ -19,6 +19,7 @@ from tensorflow.core.framework.types_pb2 import DataType as _DataType
 from utensor_cgen.utils import topologic_order_graph
 
 from .converter import AttrValueConverter, ConverterFactory
+from utensor_cgen.utils import topologic_order_graph
 
 __all__ = ['TensorInfo', 'OperationInfo', 'uTensorGraph']
 
@@ -205,10 +206,23 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
   _backend = attr.ib(default='', type=str)
   ops_info = attr.ib(factory=dict)
   topo_order = attr.ib(factory=list, init=False)
+  _type_to_op_map = attr.ib(factory=dict, init=False, repr=False)
 
   def __attrs_post_init__(self):
     if not self.output_nodes:
       raise ValueError('No output_nodes given')
+    for op_info in self.ops_info.values():
+      op_type = op_info.op_type
+      ops = self._type_to_op_map.get(
+        op_type,
+        []
+      ).append(op_info)
+      self._type_to_op_map.update(
+        [(op_type, ops),]
+      )
+  
+  def get_ops_by_type(self, op_type):
+    return self._type_to_op_map.get(op_type, [])
   
   @property
   def backend(self):
