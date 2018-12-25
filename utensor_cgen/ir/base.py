@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 import re
-from collections import defaultdict
 from copy import deepcopy
 
 import attr
@@ -47,6 +46,7 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
   name = attr.ib(validator=instance_of(six.text_type))
   op_name = attr.ib(validator=instance_of(six.text_type))
   dtype = attr.ib(validator=instance_of(np.dtype))
+
   shape = attr.ib(validator=instance_of((list, type(None))))
   @shape.validator
   def check(self, attrib, shape_values):
@@ -54,19 +54,26 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
       for v in shape_values:
         assert isinstance(v, (int, type(None))), \
           "shape should be a list of integers"
-  ugraph = attr.ib(repr=False)
-  @ugraph.validator
+          
+  _ugraph = attr.ib(repr=False)
+  @_ugraph.validator
   def check(self, attrib, value):
     if not isinstance(value, uTensorGraph):
       raise ValueError('Expecting a uTensorGraph, get {}'.format(type(value)))
+  
+  _semantic_signature = attr.ib(init=False, repr=False, default='')
+  
+  @property
+  def ugraph(self):
+    return self._ugraph
 
   @property
   def op(self):
-    return self.ugraph.ops_info.get(self.op_name, None)
+    return self._ugraph.ops_info.get(self.op_name, None)
 
   @property
   def backend(self):
-    return self.ugraph.backend
+    return self._ugraph.backend
 
   @property
   def is_dangling(self):
@@ -85,11 +92,14 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
     out_tnames = [t_info.name for t_info in op.output_tensors]
     return out_tnames.index(self.name)
 
+  @property
   def semantic_signature(self):
-    return "<{n_th}>{op_sig}".format(
-      n_th=self.n_th_output,
-      op_sig=self.op.semantic_signature
-    )
+    if not self._semantic_signature:
+      self._semantic_signature = "<{n_th}>{op_sig}".format(
+        n_th=self.n_th_output,
+        op_sig=self.op.semantic_signature
+      )
+    return self._semantic_signature
 
   def __deepcopy__(self, memo):
     new_tensor = TensorInfo(name=self.name,
@@ -121,12 +131,14 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
   """
   name = attr.ib(type=str)
   _backend = attr.ib(type=str)
-  ugraph = attr.ib(repr=False)
-  @ugraph.validator
+  _ugraph = attr.ib(repr=False)
+  @_ugraph.validator
   def check(self, attrib, value):
     if not isinstance(value, uTensorGraph):
-      raise ValueError(('Expecting a uTensorGraph, '
-                        'get {}'.format(type(value))))
+      raise ValueError(
+        'Expecting a uTensorGraph, '
+        'get {}'.format(type(value))
+      )
 
   input_tensors = attr.ib(validator=instance_of(list))
   @input_tensors.validator
@@ -143,6 +155,12 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
   op_type = attr.ib(type=str)
   op_attr = attr.ib(factory=dict, converter=dict)
 
+  _semantic_signature = attr.ib(init=False, repr=False, default='')
+
+  @property
+  def ugraph(self):
+    return self._ugraph
+  
   @property
   def backend(self):
     return self._backend
@@ -153,17 +171,17 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
     for tensor in self.input_tensors:
       if tensor.op_name not in in_ops:
         in_ops.append(tensor.op_name)
-    return [self.ugraph.ops_info.get(name, None) for name in in_ops]
-  
+    return [self._ugraph.ops_info.get(name, None) for name in in_ops]
+
   @property
   def output_nodes(self):
     out_ops = []
-    for op in self.ugraph.ops:
+    for op in self._ugraph.ops:
       for in_tensor in op.input_tensors:
         if in_tensor.op_name == self.name and op.name not in out_ops:
           out_ops.append(op.name)
           break
-    return [self.ugraph.ops_info[name] for name in out_ops]
+    return [self._ugraph.ops_info[name] for name in out_ops]
   
   @property
   def is_dangling(self):
@@ -181,20 +199,26 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
   def n_outputs(self):
     return len(self.output_tensors)
 
+  @property
   def semantic_signature(self):
-    queue = [(self, self.input_nodes)]
-    sig = "{}<:".format(self.op_type)
-    while queue:
-      current_node, input_nodes = queue.pop(0)
-      if any([node.is_dangling for node in input_nodes]):
-        raise ValueError(
-          "Dangling node detected: {}".format(current_node.name)
+    if not self._semantic_signature:
+      queue = [(self, self.input_tensors)]
+      sig = "{}<:".format(self.op_type)
+      while queue:
+        current_node, input_tensors = queue.pop(0)
+        if any([t_info.is_dangling for t_info in input_tensors]):
+          raise ValueError(
+            "Dangling node detected: {}".format(current_node.name)
+          )
+        queue.extend([
+          (t_info.op, t_info.op.input_tensors) for t_info in input_tensors
+        ])
+        sig += "{}<:".format(
+          tuple("<{}>{}".format(t_info.n_th_output, t_info.op.op_type) 
+                for t_info in input_tensors)
         )
-      queue.extend([
-        (node, node.input_nodes) for node in input_nodes
-      ])
-      sig += "{}<:".format(tuple(node.op_type for node in input_nodes))
-    return sig
+      self._semantic_signature = sig
+    return self._semantic_signature
 
   def __attrs_post_init__(self):
     skip_pattern = re.compile(r'_utensor_[^_]*')
@@ -207,7 +231,7 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
         else:
           op_attr[k] = ConverterFactory.get_generic_value(v)
       self.op_attr = op_attr
-    self.ugraph.ops_info[self.name] = self
+    self._ugraph.ops_info[self.name] = self
 
   def __deepcopy__(self, memo):
     op_info = OperationInfo(name=self.name,
@@ -339,10 +363,11 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
   def __deepcopy__(self, memo):
     new_graph = uTensorGraph(output_nodes=self.output_nodes)
     memo['ugraph'] = new_graph
-    new_ops_info = dict((k, deepcopy(v, memo)) for k, v in self.ops_info.items())
-    new_topo_order = [name for name in self.topo_order]
 
-    new_graph.ops_info = new_ops_info
-    new_graph.topo_order = new_topo_order
+    new_graph.ops_info = {
+      k: deepcopy(v, memo)
+      for k, v in self.ops_info.items()
+    }
     new_graph._backend = self._backend
+    topologic_order_graph(new_graph)
     return new_graph
