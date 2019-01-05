@@ -86,11 +86,24 @@ class OpEqualityDelegate(object):
 
   @classmethod
   def _query_equal_w_association(cls, this_op, other_op):
+    if this_op.n_inputs != other_op.n_inputs:
+      return False, None
     association = cls._association_map.get(
       this_op.op_type,
       Association(permutations=[tuple(i for i in range(this_op.n_inputs))])
     )
-    
+    match = False
+    match_perm = None
+    for perm in association.permutations:
+      all_inputs_match = True
+      for this_input, other_input in zip(this_op.input_tensors, other_op.input_tensors[perm]):
+        if this_input.op.op_type != other_input.op.op_type:
+          all_inputs_match = False
+      if all_inputs_match:
+        match = True
+        match_perm = perm
+        break
+    return match, match_perm
 
 
 @attr.s

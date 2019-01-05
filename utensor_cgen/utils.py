@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 import os
 import re
+from collections import deque
 from copy import deepcopy
 
 import idx2numpy as idx2np
@@ -116,6 +117,8 @@ def parse_tensor_name(tname):
 
 
 class NamescopedKWArgsParser:
+  """FIXME: this parser is badly designed, replace it with sth else
+  """
 
   def __init__(self, name_space, kwargs):
     ns_pattern = re.compile(r'^{}__([^\d\W][\w\d_]*)'.format(name_space))
@@ -221,3 +224,17 @@ def topologic_order_graph(ugraph):
     node_name = queue.pop(0)
     visit(node_name)
   ugraph.topo_order = ops_torder[::-1]
+
+def get_op_names_bfs(ugraph):
+  queue = deque(ugraph.output_nodes)
+  visited = set()
+  bfs_deck = []
+
+  while queue:
+    op = queue.popleft()
+    if op.name in visited:
+      continue
+    visited.add(op.name)
+    bfs_deck.append(op.name)
+    queue.extend(op.input_nodes)
+  return bfs_deck

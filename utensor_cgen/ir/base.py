@@ -18,7 +18,6 @@ from tensorflow.core.framework.types_pb2 import DataType as _DataType
 from utensor_cgen.utils import topologic_order_graph
 
 from .converter import AttrValueConverter, ConverterFactory
-from utensor_cgen.utils import topologic_order_graph
 
 __all__ = ['TensorInfo', 'OperationInfo', 'uTensorGraph']
 
@@ -92,14 +91,14 @@ class TensorInfo(IRBase, _NoShallowCopyMixin):
     out_tnames = [t_info.name for t_info in op.output_tensors]
     return out_tnames.index(self.name)
 
-  @property
-  def semantic_signature(self):
-    if not self._semantic_signature:
-      self._semantic_signature = "<{n_th}>{op_sig}".format(
-        n_th=self.n_th_output,
-        op_sig=self.op.semantic_signature
-      )
-    return self._semantic_signature
+  # @property
+  # def semantic_signature(self):
+  #   if not self._semantic_signature:
+  #     self._semantic_signature = "<{n_th}>{op_sig}".format(
+  #       n_th=self.n_th_output,
+  #       op_sig=self.op.semantic_signature
+  #     )
+  #   return self._semantic_signature
 
   def __deepcopy__(self, memo):
     new_tensor = TensorInfo(name=self.name,
@@ -199,26 +198,26 @@ class OperationInfo(IRBase, _NoShallowCopyMixin):
   def n_outputs(self):
     return len(self.output_tensors)
 
-  @property
-  def semantic_signature(self):
-    if not self._semantic_signature:
-      queue = [(self, self.input_tensors)]
-      sig = "{}<:".format(self.op_type)
-      while queue:
-        current_node, input_tensors = queue.pop(0)
-        if any([t_info.is_dangling for t_info in input_tensors]):
-          raise ValueError(
-            "Dangling node detected: {}".format(current_node.name)
-          )
-        queue.extend([
-          (t_info.op, t_info.op.input_tensors) for t_info in input_tensors
-        ])
-        sig += "{}<:".format(
-          tuple("<{}>{}".format(t_info.n_th_output, t_info.op.op_type) 
-                for t_info in input_tensors)
-        )
-      self._semantic_signature = sig
-    return self._semantic_signature
+  # @property
+  # def semantic_signature(self):
+  #   if not self._semantic_signature:
+  #     queue = [(self, self.input_tensors)]
+  #     sig = "{}<:".format(self.op_type)
+  #     while queue:
+  #       current_node, input_tensors = queue.pop(0)
+  #       if any([t_info.is_dangling for t_info in input_tensors]):
+  #         raise ValueError(
+  #           "Dangling node detected: {}".format(current_node.name)
+  #         )
+  #       queue.extend([
+  #         (t_info.op, t_info.op.input_tensors) for t_info in input_tensors
+  #       ])
+  #       sig += "{}<:".format(
+  #         tuple("<{}>{}".format(t_info.n_th_output, t_info.op.op_type) 
+  #               for t_info in input_tensors)
+  #       )
+  #     self._semantic_signature = sig
+  #   return self._semantic_signature
 
   def __attrs_post_init__(self):
     skip_pattern = re.compile(r'_utensor_[^_]*')
