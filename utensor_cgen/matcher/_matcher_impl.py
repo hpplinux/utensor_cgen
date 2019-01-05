@@ -6,6 +6,7 @@ from attr.validators import instance_of
 
 from utensor_cgen.ir import uTensorGraph
 from utensor_cgen.ir.utils import is_list_of
+from utensor_cgen.utils import get_op_names_bfs
 
 __all__ = ["uTensorGraphMatcher"]
 
@@ -59,7 +60,6 @@ class OpEqualityDelegate(object):
   def query_equivalence(cls, this_op, other_op):
     """
     given two ops, return the equivalence of them
-    True if they are equivalent, False o.w
 
     Two ops are equivelent iff
     1. the are compatible, or
@@ -170,21 +170,9 @@ class _MatchState(object):
 
   def __attrs_post_init__(self):
     # setup consume_queue (bfs of pattern ugraph)
-    pattern_ugraph = self.match.pattern_ugraph
-    bfs_queue = deque()
-    bfs_queue.extend([op.name for op in pattern_ugraph.output_nodes])
-    patrn_bfs_queue = deque()
-    while bfs_queue: # not empty
-      op_name = bfs_queue.popleft()
-      patrn_bfs_queue.append(op_name)
-      current_op = pattern_ugraph.ops_info[op_name]
-      input_op_names = []
-      for t_info in current_op.input_tensors:
-        op_name = t_info.op.name
-        if op_name not in input_op_names:
-          input_op_names.append(op_name)
-      bfs_queue.extend(input_op_names)
-    self.patrn_bfs_queue = patrn_bfs_queue
+    self.patrn_bfs_queue.extend(
+      get_op_names_bfs(self.match.pattern_ugraph)
+    )
 
   @property
   def is_done(self):
