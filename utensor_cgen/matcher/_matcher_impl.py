@@ -1,4 +1,4 @@
-from collections import defaultdict, deque
+from collections import deque
 from itertools import product
 
 import attr
@@ -9,13 +9,28 @@ from utensor_cgen.ir.utils import is_list_of
 
 __all__ = ["uTensorGraphMatcher"]
 
+@attr.s
+class Association(object):
+  permutations = attr.ib(validator=is_list_of(tuple))
+
+
+@attr.s(frozen=True, slots=True)
 class OpEqualityDelegate(object):
 
   # to activate all configurations
   import utensor_cgen.backend.operators
 
   _association_map = {}
-  _compatibility_map = defaultdict(set)
+  _compatibility_map = {}
+
+  @attr.s
+  class Equivalence(object):
+    is_equal = attr.ib(validator=instance_of(bool))
+    input_permutation = attr.ib(
+      validator=instance_of(
+        (tuple, type(None))
+      )
+    )
 
   @classmethod
   def is_associative(cls, permutations):
@@ -31,20 +46,49 @@ class OpEqualityDelegate(object):
   @classmethod
   def is_compatible_with(cls, other_op):
     def deco(op):
+      if op.op_type not in cls._compatibility_map:
+        cls._compatibility_map[op.op_type] = set()
       cls._compatibility_map[op.op_type].add(other_op.op_type)
       return op
     return deco
 
-  def visit(self, state):
+  @classmethod
+  def query_equivalence(cls, this_op, other_op):
     """
-    query if this op info is equivelent to other op info
-    in the context of the graph
+    given two ops, return the equivalence of them
+    True if they are equivalent, False o.w
+
+    Two ops are equivelent iff
+    1. the are compatible, or
+    2. their op_types are the same and one of the inputs permutation agrees
     """
-    target_op = state.ops_queue.popleft()
-    pattern_op = state.match.inv_op_names_map[target_op.name]
-    compatible_ops = self._compatibility_map.get(pattern_op.op_type, set())
-    if target_op.op_type in compatible_ops:
-      return True
+    # 1. compatibility
+    is_compatible = cls._query_compatible(this_op, other_op)
+
+    # 2: same op_type with agree inputs
+    is_equal, input_permutation = cls._query_equal_w_association(this_op, other_op)
+
+    return cls.Equivalence(
+      is_equal=(is_compatible or is_equal),
+      input_permutation=input_permutation
+    )
+  
+  @classmethod
+  def _query_compatible(cls, this_op, other_op):
+    compatible_ops = cls._compatibility_map.get(this_op.op_type, set())
+    return (
+      this_op.op_type == other_op.op_type or
+      other_op.op_type in compatible_ops
+    )
+
+  @classmethod
+  def _query_equal_w_association(cls, this_op, other_op):
+    association = cls._association_map.get(
+      this_op.op_type,
+      Association(permutations=[tuple(i for i in range(this_op.n_inputs))])
+    )
+    
+
 
 @attr.s
 class uTensorGraphMatcher(object):
@@ -62,50 +106,36 @@ class uTensorGraphMatcher(object):
         return []
       outputs_pool.append(same_ops)
     output_candidates = product(*outputs_pool)
-
-    states = []
-    for candidates in output_candidates:
-      state = _MatchState(
-        match=uTensorGraphMatch(
-          pattern_ugraph=self.pattern_ugraph,
-          target_ugraph=other_ugraph
-        ),
-        ops_queue=deque(),
-        is_matched=True
-      )
-      for pattern_op, target_op in zip(self.pattern_ugraph.output_ops, candidates):
-        state.match.update_op_map(pattern_op, target_op)
-        state.enqueue(target_op)
-
-    while True:
-      if all([state.is_done for state in states]):
-        break
-      for state in states:
-        self._op_eq_delegate.visit(state)
-    return [state.match for state in states if state.is_matched]
+  
+  def _visit(self, state):
+    pass
 
 @attr.s
 class uTensorGraphMatch(object):
 
-  # these dicts map a given name in the pattern ugraph
-  # to the counter part of the target ugraph
-  # op in pattern -> op in target
-  op_names_map = attr.ib(type=dict)
-  # op in target -> op in pattern
-  inv_op_names_map = attr.ib(type=dict)
+  # map from op_name to op_info
+  patrn2subj_op_map = attr.ib(type=dict)
+  subj2patrn_op_map = attr.ib(type=dict)
   # tensor in pattern -> tensor in target
-  tensor_names_map = attr.ib(type=dict)
+  patrn2subj_tensor_map = attr.ib(type=dict)
   # tensor in target -> tensor in pattern
-  inv_tensor_names_map = attr.ib(type=dict)
+  subj2patrn_tensor_map = attr.ib(type=dict)
   pattern_ugraph = attr.ib(type=uTensorGraph)
-  target_ugraph = attr.ib(type=uTensorGraph)
+  subject_ugraph = attr.ib(type=uTensorGraph)
 
-  def update_op_map(self, pattern_op, target_op):
-    self.op_names_map[pattern_op.name] = target_op
-    self.inv_op_names_map[target_op.name] = pattern_op
-    for pattern_tensor, target_tensor in zip(pattern_op.input_tensors, target_op.input_tensors):
-      self.tensor_names_map[pattern_tensor.name] = target_tensor
-      self.inv_tensor_names_map[target_tensor.name] = pattern_tensor
+  def update_op_map(self, pattern_op, subj_op):
+    if pattern_op.op_type != subj_op.op_type:
+      raise ValueError(
+        'can not update op map with different ops: {} v.s {}'.format(
+          pattern_op.op_type,
+          subj_op.op_type
+        )
+      )
+    self.patrn2subj_op_map[pattern_op.name] = subj_op
+    self.subj2patrn_op_map[subj_op.name] = pattern_op
+    for pattern_tensor, target_tensor in zip(pattern_op.input_tensors, subj_op.input_tensors):
+      self.patrn2subj_tensor_map[pattern_tensor.name] = target_tensor
+      self.subj2patrn_tensor_map[target_tensor.name] = pattern_tensor
 
 @attr.s
 class _MatchState(object):
@@ -116,17 +146,36 @@ class _MatchState(object):
       raise ValueError(
         'expecting a uTensorGraphMatch, get {}'.format(type(value))
       )
-  ops_queue = attr.ib(validator=instance_of(deque))
-  is_matched = attr.ib(type=bool, default=True)
+  # bfs_queue is a queue for BFS of the subject ugraph
+  sub_bfs_queue = attr.ib(validator=instance_of(deque))
+  # consume_queue is a queue defines the matching order of pattern ugraph
+  patrn_bfs_queue = attr.ib(init=False, factory=deque)
+  is_matched = attr.ib(validator=instance_of(bool), default=True)
+
+  def __attrs_post_init__(self):
+    # setup consume_queue (bfs of pattern ugraph)
+    pattern_ugraph = self.match.pattern_ugraph
+    bfs_queue = deque()
+    bfs_queue.extend([op.name for op in pattern_ugraph.output_nodes])
+    patrn_bfs_queue = deque()
+    while bfs_queue: # not empty
+      op_name = bfs_queue.popleft()
+      patrn_bfs_queue.append(op_name)
+      current_op = pattern_ugraph.ops_info[op_name]
+      input_op_names = []
+      for t_info in current_op.input_tensors:
+        op_name = t_info.op.name
+        if op_name not in input_op_names:
+          input_op_names.append(op_name)
+      bfs_queue.extend(input_op_names)
+    self.patrn_bfs_queue = patrn_bfs_queue
 
   @property
   def is_done(self):
-    return self.ops_queue.is_empty or not self.is_matched
-
-  def enqueue(self, op_info):
-    pass
-
-
-@attr.s
-class Association(object):
-  permutations = attr.ib(validator=is_list_of(tuple))
+    """
+    a state is done, if
+    1. the patrn_bfs_queue is empty (nothing to do)
+    2. there is a mismatch (is_match is False)
+    """
+    is_empty = len(self.patrn_bfs_queue) == 0
+    return is_empty or not self.is_matched
