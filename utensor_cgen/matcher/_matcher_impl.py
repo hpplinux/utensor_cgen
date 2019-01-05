@@ -44,11 +44,14 @@ class OpEqualityDelegate(object):
     return deco
 
   @classmethod
-  def is_compatible_with(cls, other_op):
+  def is_compatible_with(cls, other_op_type):
     def deco(op):
       if op.op_type not in cls._compatibility_map:
         cls._compatibility_map[op.op_type] = set()
-      cls._compatibility_map[op.op_type].add(other_op.op_type)
+      if other_op_type not in cls._compatibility_map:
+        cls._compatibility_map[other_op_type] = set()
+      cls._compatibility_map[op.op_type].add(other_op_type)
+      cls._compatibility_map[other_op_type].add(op.op_type)
       return op
     return deco
 
