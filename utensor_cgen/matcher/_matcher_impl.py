@@ -130,6 +130,7 @@ class uTensorGraphMatcher(object):
     output_candidates = product(*outputs_pool)
   
   def _visit(self, state):
+    # visit the state with a button-up bfs fashion
     pass
 
 @attr.s
