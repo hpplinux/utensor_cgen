@@ -65,6 +65,11 @@ class OpEqualityDelegate(object):
     1. the are compatible, or
     2. their op_types are the same and one of the inputs permutation agrees
     """
+    if this_op.op_type == other_op.op_type:
+      return cls.Equivalence(
+        is_equal=True,
+        input_permutation=tuple(i for i in range(this_op.n_inputs))
+      )
     # 1. compatibility
     is_compatible = cls._query_compatible(this_op, other_op)
 
@@ -96,7 +101,8 @@ class OpEqualityDelegate(object):
     match_perm = None
     for perm in association.permutations:
       all_inputs_match = True
-      for this_input, other_input in zip(this_op.input_tensors, other_op.input_tensors[perm]):
+      perm_inputs = [other_op.input_tensors[i] for i in perm]
+      for this_input, other_input in zip(this_op.input_tensors, perm_inputs):
         if this_input.op.op_type != other_input.op.op_type:
           all_inputs_match = False
       if all_inputs_match:
