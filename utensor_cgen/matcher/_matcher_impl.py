@@ -128,7 +128,7 @@ class uTensorGraphMatcher(object):
         return []
       outputs_pool.append(same_ops)
     output_candidates = product(*outputs_pool)
-  
+
   def _visit(self, state):
     # visit the state with a button-up bfs fashion
     pass
