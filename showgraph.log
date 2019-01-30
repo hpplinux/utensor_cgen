@@ -1,0 +1,462 @@
+op_name: Placeholder
+      op_type: Placeholder
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='Placeholder:0', op_name='Placeholder', dtype=dtype('float32'), shape=[None, 32, 32, 3], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: keep_prob
+      op_type: Placeholder
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='keep_prob:0', op_name='keep_prob', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv/Variable:0', op_name='conv/Variable', dtype=dtype('float32'), shape=[2, 2, 3, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='Placeholder:0', op_name='Placeholder', dtype=dtype('float32'), shape=[None, 32, 32, 3], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv/Variable:0', op_name='conv/Variable', dtype=dtype('float32'), shape=[2, 2, 3, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv/feature_map:0', op_name='conv/feature_map', dtype=dtype('float32'), shape=[None, 31, 31, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv/bias:0', op_name='conv/bias', dtype=dtype('float32'), shape=[16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv/feature_map:0', op_name='conv/feature_map', dtype=dtype('float32'), shape=[None, 31, 31, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv/bias:0', op_name='conv/bias', dtype=dtype('float32'), shape=[16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv/logits:0', op_name='conv/logits', dtype=dtype('float32'), shape=[None, 31, 31, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_1/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_1/Variable:0', op_name='conv_1/Variable', dtype=dtype('float32'), shape=[3, 3, 16, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_1/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='conv/logits:0', op_name='conv/logits', dtype=dtype('float32'), shape=[None, 31, 31, 16], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_1/Variable:0', op_name='conv_1/Variable', dtype=dtype('float32'), shape=[3, 3, 16, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_1/feature_map:0', op_name='conv_1/feature_map', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_1/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_1/bias:0', op_name='conv_1/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_1/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv_1/feature_map:0', op_name='conv_1/feature_map', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_1/bias:0', op_name='conv_1/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_1/logits:0', op_name='conv_1/logits', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_1/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='conv_1/logits:0', op_name='conv_1/logits', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_1/activation:0', op_name='conv_1/activation', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: MaxPool
+      op_type: MaxPool
+      input(s):
+        [TensorInfo(name='conv_1/activation:0', op_name='conv_1/activation', dtype=dtype('float32'), shape=[None, 29, 29, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='MaxPool:0', op_name='MaxPool', dtype=dtype('float32'), shape=[None, 14, 14, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_2/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_2/Variable:0', op_name='conv_2/Variable', dtype=dtype('float32'), shape=[3, 3, 32, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_2/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='MaxPool:0', op_name='MaxPool', dtype=dtype('float32'), shape=[None, 14, 14, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_2/Variable:0', op_name='conv_2/Variable', dtype=dtype('float32'), shape=[3, 3, 32, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_2/feature_map:0', op_name='conv_2/feature_map', dtype=dtype('float32'), shape=[None, 6, 6, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_2/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_2/bias:0', op_name='conv_2/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_2/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv_2/feature_map:0', op_name='conv_2/feature_map', dtype=dtype('float32'), shape=[None, 6, 6, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_2/bias:0', op_name='conv_2/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_2/logits:0', op_name='conv_2/logits', dtype=dtype('float32'), shape=[None, 6, 6, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_3/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_3/Variable:0', op_name='conv_3/Variable', dtype=dtype('float32'), shape=[3, 3, 32, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_3/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='conv_2/logits:0', op_name='conv_2/logits', dtype=dtype('float32'), shape=[None, 6, 6, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_3/Variable:0', op_name='conv_3/Variable', dtype=dtype('float32'), shape=[3, 3, 32, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_3/feature_map:0', op_name='conv_3/feature_map', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_3/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_3/bias:0', op_name='conv_3/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_3/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv_3/feature_map:0', op_name='conv_3/feature_map', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_3/bias:0', op_name='conv_3/bias', dtype=dtype('float32'), shape=[32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_3/logits:0', op_name='conv_3/logits', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_3/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='conv_3/logits:0', op_name='conv_3/logits', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_3/activation:0', op_name='conv_3/activation', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/Shape
+      op_type: Shape
+      input(s):
+        [TensorInfo(name='conv_3/activation:0', op_name='conv_3/activation', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/Shape:0', op_name='dropout/Shape', dtype=dtype('int32'), shape=[4], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform/min
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform/min:0', op_name='dropout/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform/max
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform/max:0', op_name='dropout/random_uniform/max', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform/RandomUniform
+      op_type: RandomUniform
+      input(s):
+        [TensorInfo(name='dropout/Shape:0', op_name='dropout/Shape', dtype=dtype('int32'), shape=[4], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform/RandomUniform:0', op_name='dropout/random_uniform/RandomUniform', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform/sub
+      op_type: Sub
+      input(s):
+        [TensorInfo(name='dropout/random_uniform/max:0', op_name='dropout/random_uniform/max', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout/random_uniform/min:0', op_name='dropout/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform/sub:0', op_name='dropout/random_uniform/sub', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform/mul
+      op_type: Mul
+      input(s):
+        [TensorInfo(name='dropout/random_uniform/RandomUniform:0', op_name='dropout/random_uniform/RandomUniform', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout/random_uniform/sub:0', op_name='dropout/random_uniform/sub', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform/mul:0', op_name='dropout/random_uniform/mul', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/random_uniform
+      op_type: Add
+      input(s):
+        [TensorInfo(name='dropout/random_uniform/mul:0', op_name='dropout/random_uniform/mul', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout/random_uniform/min:0', op_name='dropout/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/random_uniform:0', op_name='dropout/random_uniform', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/add
+      op_type: Add
+      input(s):
+        [TensorInfo(name='keep_prob:0', op_name='keep_prob', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout/random_uniform:0', op_name='dropout/random_uniform', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/add:0', op_name='dropout/add', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/Floor
+      op_type: Floor
+      input(s):
+        [TensorInfo(name='dropout/add:0', op_name='dropout/add', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/Floor:0', op_name='dropout/Floor', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/div
+      op_type: RealDiv
+      input(s):
+        [TensorInfo(name='conv_3/activation:0', op_name='conv_3/activation', dtype=dtype('float32'), shape=[None, 2, 2, 32], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='keep_prob:0', op_name='keep_prob', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/div:0', op_name='dropout/div', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout/mul
+      op_type: Mul
+      input(s):
+        [TensorInfo(name='dropout/div:0', op_name='dropout/div', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout/Floor:0', op_name='dropout/Floor', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout/mul:0', op_name='dropout/mul', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: MaxPool_1
+      op_type: MaxPool
+      input(s):
+        [TensorInfo(name='dropout/mul:0', op_name='dropout/mul', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='MaxPool_1:0', op_name='MaxPool_1', dtype=dtype('float32'), shape=[None, None, None, None], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_4/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_4/Variable:0', op_name='conv_4/Variable', dtype=dtype('float32'), shape=[1, 1, 32, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_4/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='MaxPool_1:0', op_name='MaxPool_1', dtype=dtype('float32'), shape=[None, None, None, None], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_4/Variable:0', op_name='conv_4/Variable', dtype=dtype('float32'), shape=[1, 1, 32, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_4/feature_map:0', op_name='conv_4/feature_map', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_4/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_4/bias:0', op_name='conv_4/bias', dtype=dtype('float32'), shape=[64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_4/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv_4/feature_map:0', op_name='conv_4/feature_map', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_4/bias:0', op_name='conv_4/bias', dtype=dtype('float32'), shape=[64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_4/logits:0', op_name='conv_4/logits', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_4/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='conv_4/logits:0', op_name='conv_4/logits', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_4/activation:0', op_name='conv_4/activation', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_5/Variable
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_5/Variable:0', op_name='conv_5/Variable', dtype=dtype('float32'), shape=[1, 1, 64, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_5/feature_map
+      op_type: Conv2D
+      input(s):
+        [TensorInfo(name='conv_4/activation:0', op_name='conv_4/activation', dtype=dtype('float32'), shape=[None, None, None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_5/Variable:0', op_name='conv_5/Variable', dtype=dtype('float32'), shape=[1, 1, 64, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_5/feature_map:0', op_name='conv_5/feature_map', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_5/bias
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='conv_5/bias:0', op_name='conv_5/bias', dtype=dtype('float32'), shape=[128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_5/logits
+      op_type: Add
+      input(s):
+        [TensorInfo(name='conv_5/feature_map:0', op_name='conv_5/feature_map', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='conv_5/bias:0', op_name='conv_5/bias', dtype=dtype('float32'), shape=[128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_5/logits:0', op_name='conv_5/logits', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: conv_5/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='conv_5/logits:0', op_name='conv_5/logits', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='conv_5/activation:0', op_name='conv_5/activation', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: Reshape/shape
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='Reshape/shape:0', op_name='Reshape/shape', dtype=dtype('int32'), shape=[2], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: Reshape
+      op_type: Reshape
+      input(s):
+        [TensorInfo(name='conv_5/activation:0', op_name='conv_5/activation', dtype=dtype('float32'), shape=[None, None, None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='Reshape/shape:0', op_name='Reshape/shape', dtype=dtype('int32'), shape=[2], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='Reshape:0', op_name='Reshape', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect/weight
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='fully_connect/weight:0', op_name='fully_connect/weight', dtype=dtype('float32'), shape=[128, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect/logits
+      op_type: MatMul
+      input(s):
+        [TensorInfo(name='Reshape:0', op_name='Reshape', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='fully_connect/weight:0', op_name='fully_connect/weight', dtype=dtype('float32'), shape=[128, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='fully_connect/logits:0', op_name='fully_connect/logits', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='fully_connect/logits:0', op_name='fully_connect/logits', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='fully_connect/activation:0', op_name='fully_connect/activation', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/Shape
+      op_type: Shape
+      input(s):
+        [TensorInfo(name='fully_connect/activation:0', op_name='fully_connect/activation', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/Shape:0', op_name='dropout_1/Shape', dtype=dtype('int32'), shape=[2], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform/min
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform/min:0', op_name='dropout_1/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform/max
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform/max:0', op_name='dropout_1/random_uniform/max', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform/RandomUniform
+      op_type: RandomUniform
+      input(s):
+        [TensorInfo(name='dropout_1/Shape:0', op_name='dropout_1/Shape', dtype=dtype('int32'), shape=[2], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform/RandomUniform:0', op_name='dropout_1/random_uniform/RandomUniform', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform/sub
+      op_type: Sub
+      input(s):
+        [TensorInfo(name='dropout_1/random_uniform/max:0', op_name='dropout_1/random_uniform/max', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout_1/random_uniform/min:0', op_name='dropout_1/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform/sub:0', op_name='dropout_1/random_uniform/sub', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform/mul
+      op_type: Mul
+      input(s):
+        [TensorInfo(name='dropout_1/random_uniform/RandomUniform:0', op_name='dropout_1/random_uniform/RandomUniform', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout_1/random_uniform/sub:0', op_name='dropout_1/random_uniform/sub', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform/mul:0', op_name='dropout_1/random_uniform/mul', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/random_uniform
+      op_type: Add
+      input(s):
+        [TensorInfo(name='dropout_1/random_uniform/mul:0', op_name='dropout_1/random_uniform/mul', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout_1/random_uniform/min:0', op_name='dropout_1/random_uniform/min', dtype=dtype('float32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/random_uniform:0', op_name='dropout_1/random_uniform', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/add
+      op_type: Add
+      input(s):
+        [TensorInfo(name='keep_prob:0', op_name='keep_prob', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout_1/random_uniform:0', op_name='dropout_1/random_uniform', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/add:0', op_name='dropout_1/add', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/Floor
+      op_type: Floor
+      input(s):
+        [TensorInfo(name='dropout_1/add:0', op_name='dropout_1/add', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/Floor:0', op_name='dropout_1/Floor', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/div
+      op_type: RealDiv
+      input(s):
+        [TensorInfo(name='fully_connect/activation:0', op_name='fully_connect/activation', dtype=dtype('float32'), shape=[None, 128], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='keep_prob:0', op_name='keep_prob', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/div:0', op_name='dropout_1/div', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: dropout_1/mul
+      op_type: Mul
+      input(s):
+        [TensorInfo(name='dropout_1/div:0', op_name='dropout_1/div', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='dropout_1/Floor:0', op_name='dropout_1/Floor', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='dropout_1/mul:0', op_name='dropout_1/mul', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect_1/weight
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='fully_connect_1/weight:0', op_name='fully_connect_1/weight', dtype=dtype('float32'), shape=[128, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect_1/logits
+      op_type: MatMul
+      input(s):
+        [TensorInfo(name='dropout_1/mul:0', op_name='dropout_1/mul', dtype=dtype('float32'), shape=None, ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='fully_connect_1/weight:0', op_name='fully_connect_1/weight', dtype=dtype('float32'), shape=[128, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='fully_connect_1/logits:0', op_name='fully_connect_1/logits', dtype=dtype('float32'), shape=[None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect_1/activation
+      op_type: Relu
+      input(s):
+        [TensorInfo(name='fully_connect_1/logits:0', op_name='fully_connect_1/logits', dtype=dtype('float32'), shape=[None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='fully_connect_1/activation:0', op_name='fully_connect_1/activation', dtype=dtype('float32'), shape=[None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect_2/weight
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='fully_connect_2/weight:0', op_name='fully_connect_2/weight', dtype=dtype('float32'), shape=[64, 10], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: fully_connect_2/logits
+      op_type: MatMul
+      input(s):
+        [TensorInfo(name='fully_connect_1/activation:0', op_name='fully_connect_1/activation', dtype=dtype('float32'), shape=[None, 64], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='fully_connect_2/weight:0', op_name='fully_connect_2/weight', dtype=dtype('float32'), shape=[64, 10], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='fully_connect_2/logits:0', op_name='fully_connect_2/logits', dtype=dtype('float32'), shape=[None, 10], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: pred/dimension
+      op_type: Const
+      input(s):
+        []
+      ouptut(s):
+        [TensorInfo(name='pred/dimension:0', op_name='pred/dimension', dtype=dtype('int32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
+op_name: pred
+      op_type: ArgMax
+      input(s):
+        [TensorInfo(name='fully_connect_2/logits:0', op_name='fully_connect_2/logits', dtype=dtype('float32'), shape=[None, 10], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>), TensorInfo(name='pred/dimension:0', op_name='pred/dimension', dtype=dtype('int32'), shape=[], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+      ouptut(s):
+        [TensorInfo(name='pred:0', op_name='pred', dtype=dtype('int64'), shape=[None], ugraph=<utensor_cgen.ir.base.uTensorGraph object at 0x7fbbdcffc940>)]
+
