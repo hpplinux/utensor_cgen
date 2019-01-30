@@ -125,6 +125,8 @@ class NamescopedKWArgsParser:
         self._private_kwargs[argname] = value
       else:
         self._shared_kwargs[key] = value
+    print ("hpplinux NamescopedKWArgsParser self :")
+    print (self.__dict__)
   
   def get(self, argname, default=None):
     try:

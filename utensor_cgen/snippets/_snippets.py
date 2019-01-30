@@ -144,6 +144,8 @@ class AddOpSnippet(Snippet):
     self.template_vars["inputs"] = inputs
     self.template_vars["output"] = output
     self.template_vars["to_eval"] = to_eval
+    print ("hpplinux AddOpSnippet self.__dict__:")
+    print (self.__dict__)
 
 
 class MinOpSnippet(Snippet):
@@ -162,6 +164,8 @@ class MinOpSnippet(Snippet):
     self.template_vars["out_dtype"] = NP_TYPES_MAP[out_dtype].tensor_type_str
     self.template_vars["out_shape"] = out_shape
     self.template_vars["to_eval"] = to_eval
+    print ("hpplinux MinOpSnippet self:")
+    print (self.__dict__)
 
 
 class MaxOpSnippet(Snippet):
@@ -180,6 +184,8 @@ class MaxOpSnippet(Snippet):
     self.template_vars["out_dtype"] = NP_TYPES_MAP[out_dtype].tensor_type_str
     self.template_vars["out_shape"] = out_shape
     self.template_vars["to_eval"] = to_eval
+    print ("hpplinux MaxOpSnippet self:")
+    print (self.__dict__)
 
 
 class QuantizedMaxPoolSnippet(Snippet):
@@ -399,6 +405,8 @@ class ReshapeOpSnippet(Snippet):
     self.template_vars["inputs"] = inputs
     self.template_vars["output"] = output
     self.template_vars["to_eval"] = to_eval
+    print ("hpplinux ReshapeOpSnippet self :")
+    print (self.__dict__)
 
 
 class QuantizedReshapeOpSnippet(Snippet):
@@ -474,6 +482,8 @@ class WeightSnippet(Snippet):
       self.template_vars['value'] = value
       self.template_vars['length'] = int(length) 
       self.template_vars['inline_name'] = inline_name 
+      print ("hpplinux WeightSnippet self:")
+      print (self.__dict__) 
 
 
 class ContextGlobalArrayContainer(SnippetContainerBase):

@@ -20,6 +20,8 @@ class SnippetBase(object):
     if not isinstance(self.__headers__, set):
       raise ValueError('__headers__ should be of type set, get {}'.format(type(self.__headers__)))
     self.template_vars = {}
+    print ("hpplinux SnippetBase __init__ self:")
+    print (self.__dict__)
 
   @property
   def template_name(self):
@@ -29,6 +31,8 @@ class SnippetBase(object):
   def template(self):
     if self.__template_name__ is None:
       raise ValueError('No template name: please override class attribute __template_name__')
+    print ("hpplinux SnippetBase template :")
+    print (_env.get_template(self.__template_name__).__dict__)
     return _env.get_template(self.__template_name__)
 
   @property
@@ -60,6 +64,8 @@ class SnippetContainerBase(SnippetBase):
     self._snippets = snippets
     for snp in self._snippets:
       self.__headers__.update(snp.headers)
+    print ("hpplinux  SnippetContainerBase __init__ self:")
+    print (self.__dict__)
 
   def add_snippet(self, snippet):
     """Add snippet into containers

@@ -2,6 +2,7 @@
 import logging
 import os
 import pickle
+import pdb
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -28,8 +29,8 @@ class CodeGenerator(object):
                embed_data_dir,
                trans_methods,
                output_nodes,
-               save_graph=False,
-               debug_cmt=False,
+               save_graph=True,
+               debug_cmt=True,
                **trans_kwargs):
     self.model_file = model_file
     if not os.path.exists(idx_dir):
@@ -41,6 +42,10 @@ class CodeGenerator(object):
     self.save_graph = save_graph
     self.debug_cmt = debug_cmt
     self.trans_kwargs = trans_kwargs
+    print ("hpplinux CodeGenerator __init__")
+    print (self.__dict__)
+	
+
 
   def generate(self, src_fname):
     _, ext = os.path.splitext(self.model_file)
@@ -66,14 +71,26 @@ class CodeGenerator(object):
 
     opFactory = OperatorFactory()
 
+    print ("hpplinux   -----------1----")
+    print ("hpplinux header_snippet : ")
+    print (header_snippet)
+    print ("hpplinux container :")
+    print (container.__dict__)
     graph_def = self._tf_load_graph_def(self.model_file)
+    print ("hpplinux graph_def :")
+    print (graph_def)
     self._expect_non_quantized(graph_def)
     ugraph = uTensorGraph(graph_def, self.output_nodes)
+    print ("hpplinux ugraph : ")
+    print (ugraph.__dict__)
     _logger.info("Transforming graph: %s", self.model_file)
     _logger.info("Transform pipeline: %s", ' -> '.join(self.trans_methods))
     quant_ugraph = self._transform_graph(ugraph,
                                          self.trans_methods,
                                          self.trans_kwargs)
+    print ("hpplinux   -----------2----")
+    print ("hpplinux quant_ugraph :")
+    print (quant_ugraph)
     _logger.info('Graph transormation done')
 
     if self.save_graph:
@@ -86,6 +103,10 @@ class CodeGenerator(object):
     for op_id, op_name in enumerate(quant_ugraph.topo_order):
       op_info = quant_ugraph.ops_info[op_name]
       op_type = op_info.op_type
+      print ("hpplinux  op_info :")
+      print (op_info)
+      print ("hpplinux  op_type :")
+      print (op_type)
       # TODO: better abstraction for snippet
       if op_type == "Placeholder":
         parser = NamescopedKWArgsParser(RefCntOptimizer.KWARGS_NAMESCOPE, 
@@ -95,21 +116,36 @@ class CodeGenerator(object):
         container.template_vars["placeholders"].append(out_tname)
         container.template_vars["ref_counts"].append(ref_count)
         header_snippet.template_vars["placeholders"].append(out_tname)
+        print ("hpplinux  op_type == Placeholder")
+        print ("out_tname :")
+        print (out_tname)
+        print ("container :")
+        print (container.__dict__)
+        print ("header_snippet :")
+        print (header_snippet.render())
       else:
         # TODO: the operator may correspond to multiple snippets (such as InlinTensor)
         # weight_container is passed to function for workaround
+        print ("hpplinux  op_type != Placeholder")
         snippet = opFactory.createOperatorSnippet(op_info,
                                                   idx_dir=self.idx_dir,
                                                   embed_data_dir=self.embed_data_dir,
                                                   weight_container=weight_container)
+        print ("hpplinux snippet :")
+        print (snippet.__dict__)
         container.add_snippet(snippet)
-
+        print ("hpplinux container :")
+        print (container.__dict__)
+        print ("hpplinux weight_container :")
+        print (weight_container.render())
       if self.debug_cmt:
         comments = ["<<< Operation id {}: {}".format(op_id, op_name),
                     ">>> Operation id {}: {}".format(op_id + 1, op_name)]
         cmt_snippet = CommentSnippet(comments)
         container.add_snippet(cmt_snippet)
     composer.add_snippet(container)
+    print ("hpplinux composer :")
+    print (composer.compose())
 
     if 'inline' in self.trans_methods:
       _logger.info("Generate weight file: %s", weightheader_fname)

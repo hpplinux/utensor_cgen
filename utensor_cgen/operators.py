@@ -21,7 +21,11 @@ class OperatorFactory():
       err_msg = "unsupported op type in uTensor: {}".format(op_type)
       raise ValueError(err_msg)
 
+    print ("hpplinux createOperatorSnippet , op_type :",)
+    print (op_type)
     op = self._operators[op_type](op_info, **kwargs)  # Create desired object
+    print ("hpplinux OperatorFactory self _operators : ")
+    print (self._operators)
     return op.snippet  # Ops know how to create their snippets
 
   @classmethod
@@ -57,9 +61,17 @@ class _AddOperator(_Operator):
     tf_dtype = op_info.input_tensors[0].dtype
     parser = NamescopedKWArgsParser(RefCntOptimizer.KWARGS_NAMESCOPE, 
                                     op_info.op_attr)
+    print ("hpplinux OperatorFactory _AddOperator  op_info: ")
+    print (op_info)
+    print ("hpplinux OperatorFactory _AddOperator  parser: ")
+    print (parser)
     ref_count = parser.get('ref_counts', [0])[0]
     to_eval = parser.get('to_eval', False)
     self._snippet = AddOpSnippet(inputs, output, tf_dtype, ref_count, to_eval)
+    print ("hpplinux OperatorFactory _AddOperator  self: ")
+    print (sef.__dict__)
+    print ("hpplinux OperatorFactory _AddOperator  self._snippet: ")
+    print (sef._snippet.__dict__)
 
 
 @OperatorFactory.register
@@ -117,6 +129,12 @@ class _MaxOperator(_Operator):
     ref_count = parser.get('ref_counts', [0])[0]
     to_eval = parser.get('to_eval', False)
     self._snippet = MaxOpSnippet(inputs, output, out_dtype, out_shape, ref_count, to_eval)
+    print ("hpplinux _MaxOperator self: ")
+    print (self.__dict__)
+    print ("hpplinux _MaxOperator self._snippet: ")
+    print (self._snippet.__dict__)
+    print ("hpplinux _MaxOperator parser:")
+    print (parser)
 
 
 @OperatorFactory.register
@@ -296,6 +314,14 @@ class _ReshapeOperator(_Operator):
     ref_count = parser.get('ref_counts', [0])[0]
     to_eval = parser.get('to_eval', False)
     self._snippet = ReshapeOpSnippet(inputs, output, ref_count, to_eval)
+    print ("hpplinux _ReshapeOperator self :")
+    print ("hpplinux _ReshapeOperator op_info :")
+    print (op_info)
+    print (self.__dict__)
+    print ("hpplinux _ReshapeOperator self._snippet:")
+    print (self._snippet.__dict__)
+    print ("hpplinux _ReshapeOperator parser :")
+    print (parser)
 
 
 @OperatorFactory.register
@@ -408,6 +434,12 @@ class _InlineOperator(_Operator):
                                   value)
     weight_container = kwargs['weight_container']                             
     weight_container.add_snippet(weight_snippet)
+    print ("hpplinux _InlineOperator self :")
+    print (self.__dict__)
+    print ("hpplinux _InlineOperator  parser :")
+    print (parser)
+    print ("hpplinux _InlineOperator  weight_snippet :")
+    print (weight_snippet.__dict__)
 
   def _prepare_tensor_name(self, tensor_name):
     prepared = tensor_name.replace(":", "_").replace("/", "_")
