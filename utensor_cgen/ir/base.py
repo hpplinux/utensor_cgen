@@ -207,6 +207,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
     if graph is None:
       self.ops_info = {}
       self.topo_order = []
+      print ("hpplinux uTensorGraph topo_order   --------__init__---",end='')
+      print (self.topo_order)
       self.output_nodes = []
       self._backend = ''
       return
@@ -228,6 +230,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
     assert self._backend == 'tensorflow', \
       'Convert a uTensorGraph to tf.GraphDef from a non-tf backend'
     graph_def = tf.GraphDef()
+    print ("hpplinux uTensorGraph topo_order   --------graph_def---",end='')
+    print (self.topo_order)
     for node_name in self.topo_order:
       op_info = self.ops_info[node_name]
       attr = {}
@@ -247,6 +251,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
   
   @property
   def ops(self):
+    print ("hpplinux uTensorGraph topo_order   --------ops---",end='')
+    print (self.topo_order)
     return [self.ops_info[name] for name in self.topo_order]
 
   def add_op(self, op):
@@ -262,6 +268,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
       raise ValueError('op not found in the graph: {}'.format(op_name))
     del self.ops_info[op_name]
     self.topo_order.remove(op_name)
+    print ("hpplinux uTensorGraph topo_order   --------drop_op---",end='')
+    print (self.topo_order)
 
   def _topologic_order_graph(self):
     # https://en.wikipedia.org/wiki/Topological_sorting
@@ -290,6 +298,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
       node_name = queue.pop(0)
       visit(node_name)
     self.topo_order = ops_torder[::-1]
+    print ("hpplinux uTensorGraph topo_order   --------_topologic_order_graph---",end='')
+    print (self.topo_order)
 
   # tensorflow
   @staticmethod
@@ -308,6 +318,8 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
     self._backend = 'tensorflow'
     self.ops_info = {}
     self.topo_order = []
+    print ("hpplinux uTensorGraph topo_order   --------_init_from_graph_def---",end='')
+    print (self.topo_order)
     self.output_nodes = output_nodes
     graph = tf.Graph()
     with graph.as_default():
@@ -348,10 +360,14 @@ class uTensorGraph(IRBase, _NoShallowCopyMixin):
     new_graph = uTensorGraph()
     memo['ugraph'] = new_graph
     new_ops_info = dict((k, deepcopy(v, memo)) for k, v in self.ops_info.items())
+    print ("hpplinux uTensorGraph topo_order   --------__deepcopy__----1---",end='')
+    print (self.topo_order)
     new_topo_order = [name for name in self.topo_order]
 
     new_graph.ops_info = new_ops_info
     new_graph.topo_order = new_topo_order
+    print ("hpplinux uTensorGraph topo_order   --------__deepcopy__----2---",end='')
+    print (self.topo_order)
     new_graph.output_nodes = self.output_nodes
     new_graph._backend = self._backend
     return new_graph
