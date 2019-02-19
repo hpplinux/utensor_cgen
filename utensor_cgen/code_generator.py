@@ -73,7 +73,7 @@ class CodeGenerator(object):
 
     print ("hpplinux   -----------1----")
     print ("hpplinux header_snippet : ")
-    print (header_snippet)
+    print (header_snippet.__dict__)
     print ("hpplinux container :")
     print (container.__dict__)
     graph_def = self._tf_load_graph_def(self.model_file)
@@ -90,7 +90,7 @@ class CodeGenerator(object):
                                          self.trans_kwargs)
     print ("hpplinux   -----------2----")
     print ("hpplinux quant_ugraph :")
-    print (quant_ugraph)
+    print (quant_ugraph.__dict__)
     _logger.info('Graph transormation done')
 
     if self.save_graph:
@@ -103,9 +103,13 @@ class CodeGenerator(object):
     for op_id, op_name in enumerate(quant_ugraph.topo_order):
       op_info = quant_ugraph.ops_info[op_name]
       op_type = op_info.op_type
-      print ("hpplinux  op_info :")
+      print (" ")
+      print (" ")
+      print ("hpplinux  op_name :",end='')
+      print (op_name)
+      print ("hpplinux  op_info :",end='')
       print (op_info)
-      print ("hpplinux  op_type :")
+      print ("hpplinux  op_type :",end='')
       print (op_type)
       # TODO: better abstraction for snippet
       if op_type == "Placeholder":
@@ -121,6 +125,8 @@ class CodeGenerator(object):
         print (out_tname)
         print ("container :")
         print (container.__dict__)
+        print ("container.render() :")
+        print (container.render())
         print ("header_snippet :")
         print (header_snippet.render())
       else:
@@ -133,9 +139,13 @@ class CodeGenerator(object):
                                                   weight_container=weight_container)
         print ("hpplinux snippet :")
         print (snippet.__dict__)
+        print ("hpplinux snippet.render :")
+        print (snippet.render())
         container.add_snippet(snippet)
         print ("hpplinux container :")
         print (container.__dict__)
+        print ("hpplinux container.render() :")
+        print (container.render())
         print ("hpplinux weight_container :")
         print (weight_container.render())
       if self.debug_cmt:
