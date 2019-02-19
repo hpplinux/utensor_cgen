@@ -48,6 +48,8 @@ Run `utensor-cli show --help` for detailed information.
 
 Convert given pb file into cpp/hpp files.
 
+eg, utensor-cli convert --output-nodes=pred /home/hp/utensor_cgen/tests/deep_cnn/cifar10_cnn.pb
+
 Note that `--output-nodes` is required options. It's the names of nodes you want to output, seperated by comma if there are many.
 
 In graph theory terminology, they are `leaf` nodes of your graph.
